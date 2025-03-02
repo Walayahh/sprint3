@@ -1,7 +1,6 @@
 const express = require('express');
 const path = require('path');
 const cors = require('cors');
-
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -11,15 +10,19 @@ app.use(cors());
 // Middleware to parse JSON requests
 app.use(express.json());
 
-// Serve the homepage (index.html) from the root directory
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
-});
+// Serve static files from the root directory
+app.use(express.static(__dirname));
 
 // API route for rolling a 6-sided die
 app.get('/api/roll', (req, res) => {
+  console.log('API roll endpoint called');
   const diceValue = Math.floor(Math.random() * 6) + 1;
   res.json({ value: diceValue, timestamp: new Date().toISOString() });
+});
+
+// Serve the homepage (index.html) from the root directory
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 // Catch-all route for undefined paths
