@@ -104,7 +104,8 @@
                 statusDisplay.className = 'status loading';
                 
                 // Call the API
-                const response = await fetch('/api/roll');
+                const response = await fetch(window.location.origin + '/api/roll');
+
                 
                 if (!response.ok) {
                     throw new Error(`Server error: ${response.status}`);
