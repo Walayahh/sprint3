@@ -1,59 +1,33 @@
 const express = require('express');
 const path = require('path');
 const cors = require('cors');
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware to parse JSON body
+// Enable CORS for all origins (adjust if needed)
+app.use(cors());
+
+// Middleware to parse JSON requests (not really needed here but kept for future use)
 app.use(express.json());
 
-// Serve static files from the public directory
+// Serve static files from the root directory (including index.html)
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Configure CORS - allow specific origins only
-const allowedOrigins = ['http://localhost:3000', 'http://127.0.0.1:3000'];
-app.use(cors({
-  origin: function(origin, callback) {
-    // Allow requests with no origin (like mobile apps, curl, etc)
-    if (!origin) return callback(null, true);
-    
-    if (allowedOrigins.indexOf(origin) === -1) {
-      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
-      return callback(new Error(msg), false);
-    }
-    return callback(null, true);
-  },
-  methods: ['GET'],
-  credentials: true
-}));
+// ✅ Serve the frontend for any unknown route (important for Azure Web Apps)
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
 
-// RESTful API for rolling a single 6-sided die
+// ✅ API Route for rolling dice
 app.get('/api/roll', (req, res) => {
-  // Generate random number between 1 and 6 on the server
-  const diceValue = Math.floor(Math.random() * 6) + 1;
-  
-  // Simulate some processing time
-  setTimeout(() => {
-    // Return the result as JSON
-    res.json({ 
-      value: diceValue,
-      timestamp: new Date().toISOString()
-    });
-  }, 200);
+    const diceValue = Math.floor(Math.random() * 6) + 1;
+    res.json({ value: diceValue, timestamp: new Date().toISOString() });
 });
 
-// Block all other API endpoints
-app.all('/api/*', (req, res) => {
-  if (req.path !== '/api/roll') {
-    res.status(403).json({
-      error: 'Access denied. Only single 6-sided die rolls are permitted.'
-    });
-  }
-});
-
-// Start server
+// ✅ Start the server
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-  console.log(`API testing page: http://localhost:${PORT}`);
-  console.log(`Only single 6-sided die rolls are permitted.`);
+    console.log(`✅ Server running on port ${PORT}`);
+    console.log(`🌐 Frontend available at: http://localhost:${PORT}`);
+    console.log(`🎲 API available at: http://localhost:${PORT}/api/roll`);
 });
