@@ -103,21 +103,34 @@
                 statusDisplay.textContent = 'Rolling...';
                 statusDisplay.className = 'status loading';
                 
-                // Call the API
-                const response = await fetch(window.location.origin + '/api/roll');
-
+                // Get the current hostname and use absolute path for API
+                const baseUrl = window.location.protocol + '//' + window.location.host;
+                const apiUrl = baseUrl + '/api/roll';
+                
+                console.log('Calling API at:', apiUrl);
+                
+                // Call the API with no-cache to prevent caching issues
+                const response = await fetch(apiUrl, {
+                    method: 'GET',
+                    headers: {
+                        'Cache-Control': 'no-cache',
+                        'Pragma': 'no-cache'
+                    }
+                });
                 
                 if (!response.ok) {
                     throw new Error(`Server error: ${response.status}`);
                 }
                 
                 const data = await response.json();
+                console.log('Received data:', data);
                 
                 // Display the result
                 diceDisplay.textContent = data.value;
                 statusDisplay.textContent = `Rolled at ${new Date().toLocaleTimeString()}`;
                 statusDisplay.className = 'status';
             } catch (error) {
+                console.error('Error rolling dice:', error);
                 diceDisplay.textContent = 'Error';
                 statusDisplay.textContent = `Failed to roll: ${error.message}`;
                 statusDisplay.className = 'status error';
@@ -129,6 +142,9 @@
         
         // Add event listener to button
         rollButton.addEventListener('click', rollDice);
+        
+        // Log that the script has loaded
+        console.log('Dice roller script loaded successfully');
     </script>
 </body>
 </html>
