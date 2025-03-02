@@ -11,27 +11,26 @@ app.use(cors());
 // Middleware to parse JSON requests
 app.use(express.json());
 
-// Serve static files from the public folder, and use index.html as the default
-app.use(express.static(path.join(__dirname, 'public'), { index: "index.html" }));
+// Serve static files from the public folder
+app.use(express.static(path.join(__dirname, 'public')));
 
-// API Route for rolling a 6-sided die (must come BEFORE catch-all)
+// API route for rolling a die
 app.get('/api/roll', (req, res) => {
-    console.log('API /api/roll was hit');
-    const diceValue = Math.floor(Math.random() * 6) + 1;
-    res.json({ value: diceValue, timestamp: new Date().toISOString() });
+  const diceValue = Math.floor(Math.random() * 6) + 1;
+  res.json({ value: diceValue, timestamp: new Date().toISOString() });
 });
 
-// Catch-all route to serve index.html for any other request
+// Explicit route for the homepage
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// Catch-all route for any undefined paths (optional)
 app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'), err => {
-        if (err) {
-            console.error('Error sending index.html:', err);
-            res.status(500).send(err);
-        }
-    });
+  res.status(404).send('Page not found');
 });
 
-// Start server
+// Start the server
 app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
